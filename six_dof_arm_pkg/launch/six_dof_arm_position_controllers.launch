@@ -1,0 +1,38 @@
+<launch>
+    <rosparam file="$(find six_dof_arm_pkg)/config/hardware.yaml" command="load"/>
+    <rosparam file="$(find six_dof_arm_pkg)/config/trajectory_controllers.yaml" command="load"/>
+    <rosparam file="$(find six_dof_arm_pkg)/config/joint_limits.yaml" command="load"/>
+
+	<param name="robot_description" command="$(find xacro)/xacro --inorder $(find six_dof_arm_pkg)/config/six_dof_arm.xacro" />
+
+	<!-- Starting Joint state publisher node which will publish the joint values -->
+	<!--node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /-->
+
+	<!-- Starting robot state publish which will publish tf -->
+	<!--node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" /-->
+
+	<!-- Launch visualization in rviz -->
+	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find mastering_ros_robot_description_pkg)/urdf.rviz" required="true" /-->
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <!--node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <remap from="/joint_states" to="/six_dof_arm/joint_states" />
+  </node-->
+
+	<!-- Launch the hardware interface -->
+  <node name="six_dof_arm_hardware_interface" pkg="six_dof_arm_pkg" type="six_dof_arm_hardware_interface" output="screen" ns="/six_dof_arm" />
+
+	<!-- Launch the controllers-->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/six_dof_arm"
+        args=" arm_trajectory_controller gripper_controller joint_state_controller"/>
+
+</launch>
+
+<!--  	    /six_dof_arm/controller/state
+            /six_dof_arm/controller/position/shoulder_pan_joint
+            /six_dof_arm/controller/position/shoulder_pitch_joint
+            /six_dof_arm/controller/position/elbow_pitch_joint
+            /six_dof_arm/controller/position/wrist_pitch_joint
+            /six_dof_arm/controller/position/gripper_roll_joint
+            /six_dof_arm/controller/position/finger_joint1
+            /six_dof_arm/controller/position/finger_joint2      -->

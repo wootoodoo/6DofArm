@@ -1,0 +1,57 @@
+<launch>
+	<!-- Launch Gazebo -->
+      <arg name="paused" default="false"/>
+      <arg name="use_sim_time" default="true"/>
+      <arg name="gui" default="true"/>
+      <arg name="headless" default="false"/>
+      <arg name="debug" default="false"/>
+
+      <!-- We resume the logic in empty_world.launch -->
+      <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="debug" value="$(arg debug)" />
+            <arg name="gui" value="$(arg gui)" />
+            <arg name="paused" value="$(arg paused)"/>
+            <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+            <arg name="headless" value="$(arg headless)"/>
+      </include>
+
+	<!-- moveit launch file -->
+	<include file="$(find six_dof_arm_config)/launch/moveit_planning_execution.launch" />
+           
+    <!-- ros_control six dof arm launch file -->
+    <rosparam file="$(find six_dof_arm_config)/config/six_dof_arm_gazebo_joint_states.yaml" command="load"/>
+    <rosparam file="$(find six_dof_arm_pkg)/config/trajectory_controllers.yaml" command="load" />
+    <!-- Load the URDF into the ROS Parameter Server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find six_dof_arm_pkg)/config/six_dof_arm.xacro'" /> 
+    <rosparam file="$(find six_dof_arm_pkg)/config/joint_limits.yaml" command="load"/>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find six_dof_arm_pkg)/config/six_dof_arm.xacro'" /> 
+
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model six_dof_arm -param robot_description">
+    </node>
+
+
+    <!-- convert joint states to TF transforms for rviz, etc -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" respawn="false" output="screen">
+    <remap from="/joint_states" to="/six_dof_arm/joint_states" />
+    </node>
+
+	<!-- Launch the controllers-->
+    <node name="hardware_controller_spawner" pkg="controller_manager"
+        type="spawner" respawn="false" output="screen" ns="/six_dof_arm"
+    args=" arm_trajectory_controller gripper_controller joint_state_controller "/>
+
+    <!-- ros_control trajectory control dof arm launch file -->
+    <rosparam file="$(find six_dof_arm_config)/config/trajectory_control.yaml" command="load"/>
+
+	<node name="joint_state_publisher" pkg="joint_state_publisher"
+		type="joint_state_publisher">
+		<param name="/use_gui" value="false"/>
+	    <rosparam param="/source_list">[/joint_states]</rosparam>
+    </node>
+
+</launch>
+

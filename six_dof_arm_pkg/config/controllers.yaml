@@ -1,0 +1,36 @@
+six_dof_arm:
+  controller:
+    state:
+      type: joint_state_controller/JointStateController
+      publish_rate: 50
+
+    position:
+      shoulder_pan_joint:
+        type: position_controllers/JointPositionController
+        joint: shoulder_pan_joint
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      shoulder_pitch_joint:
+        type: position_controllers/JointPositionController
+        joint: shoulder_pitch_joint
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      elbow_pitch_joint:
+        type: position_controllers/JointPositionController
+        joint: elbow_pitch_joint
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      wrist_pitch_joint:
+        type: position_controllers/JointPositionController
+        joint: wrist_pitch_joint
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      gripper_roll_joint:
+        type: position_controllers/JointPositionController
+        joint: gripper_roll_joint
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      finger_joint1:
+        type: position_controllers/JointPositionController
+        joint: finger_joint1
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+      finger_joint2:
+        type: position_controllers/JointPositionController
+        joint: finger_joint2
+        pid: {p: 10.0, i: 0.0, d: 1.0}
+         
