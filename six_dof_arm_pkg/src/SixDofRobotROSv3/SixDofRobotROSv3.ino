@@ -4,7 +4,7 @@
     
     1. Run the ROS master -> roscore
     2. Run the serial connection to Arduino -> rosrun rosserial_python serial_node.py /dev/ttyACM0
-    3. Run the servo_commands publisher -> rostopic pub -1 servo_commands std_msgs/String "100,90,45,50,90,80,90,35"
+    3. Run the servo_commands publisher -> rostopic pub -1 servo_commands std_msgs/String "100,90,45,55,130,80,180,35"
     4. Run the servo_angles subscriber -> rostopic echo /read_joint_states
 */
 
