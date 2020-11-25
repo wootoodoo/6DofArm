@@ -24,30 +24,30 @@
 #define GRIPPER_ROLL 3
 #define GRIPPER 2
 
-#define SERVO_DELAY 10
+#define SERVO_DELAY 5
 
-#define MIN_GRIPPER 35     // Servo7; Open: 35; Close: 115; Gripper 
-#define MAX_GRIPPER 115
-#define MIN_GRIPPER_ROLL 0      // Servo6; MIN 0; MAX180         Gripper roll
-#define MAX_GRIPPER_ROLL 180
-#define MIN_WRIST_PITCH 10     // Servo5: MIN 10; MAX 160;      Wrist Pitch
-#define MAX_WRIST_PITCH 180
-#define MIN_WRIST_ROLL 0     // Servo4: MIN 10; MAX 180;      Wrist roll
-#define MAX_WRIST_ROLL 180
-#define MIN_ELBOW_PITCH 0     // Servo3: MIN 0; MAX 180;       Elbow pitch
-#define MAX_ELBOW_PITCH 180
-#define MIN_ELBOW_ROLL 0     // Servo2: MIN 0; MAX 180;       Elbow roll
-#define MAX_ELBOW_ROLL 180
-#define MIN_SHOULDER_PITCH 0      // Servo1: MIN 0; MAX 180;       Shoulder pitch
-#define MAX_SHOULDER_PITCH 180
-#define MIN_SHOULDER_PAN 0      // Servo0: MIN 0; MAX 160;       Shoulder pan
-#define MAX_SHOULDER_PAN 180
+//#define MIN_GRIPPER 35     // Servo7; Open: 35; Close: 115; Gripper 
+//#define MAX_GRIPPER 115
+//#define MIN_GRIPPER_ROLL 0      // Servo6; MIN 0; MAX180         Gripper roll
+//#define MAX_GRIPPER_ROLL 180
+//#define MIN_WRIST_PITCH 10     // Servo5: MIN 10; MAX 160;      Wrist Pitch
+//#define MAX_WRIST_PITCH 180
+//#define MIN_WRIST_ROLL 0     // Servo4: MIN 10; MAX 180;      Wrist roll
+//#define MAX_WRIST_ROLL 180
+//#define MIN_ELBOW_PITCH 0     // Servo3: MIN 0; MAX 180;       Elbow pitch
+//#define MAX_ELBOW_PITCH 180
+//#define MIN_ELBOW_ROLL 0     // Servo2: MIN 0; MAX 180;       Elbow roll
+//#define MAX_ELBOW_ROLL 180
+//#define MIN_SHOULDER_PITCH 0      // Servo1: MIN 0; MAX 180;       Shoulder pitch
+//#define MAX_SHOULDER_PITCH 180
+//#define MIN_SHOULDER_PAN 0      // Servo0: MIN 0; MAX 160;       Shoulder pan
+//#define MAX_SHOULDER_PAN 180
 
-#define DEFAULT7 35      // gripper "100,90,45,50,90,80,90,35"
-#define DEFAULT6 90      // gripper roll
+#define DEFAULT7 35      // gripper "100,90,45,55,130,80,180,35"
+#define DEFAULT6 180      // gripper roll
 #define DEFAULT5 80      // wrist pitch
-#define DEFAULT4 90      // wrist roll
-#define DEFAULT3 50      // elbow pitch
+#define DEFAULT4 130      // wrist roll
+#define DEFAULT3 55      // elbow pitch
 #define DEFAULT2 45      // elbow roll
 #define DEFAULT1 90      // shoulder pitch
 #define DEFAULT0 100     // shoulder roll
@@ -58,166 +58,12 @@ ros::NodeHandle_<ArduinoHardware, 10, 10, 1024, 1024> nh;
 // array of commands for servos
 const int NUMBER_OF_FIELDS = 8;
 int fieldIndex = 0;
-int IN[NUMBER_OF_FIELDS];                    
+int IN[NUMBER_OF_FIELDS] = {DEFAULT0, DEFAULT1, DEFAULT2, DEFAULT3, DEFAULT4, DEFAULT5, DEFAULT6, DEFAULT7};
+int max_angles[NUMBER_OF_FIELDS] = {180, 180, 180, 180, 180, 180, 180, 115}; // From shoulder pan to gripper
+int min_angles[NUMBER_OF_FIELDS] = {0, 0, 0, 0, 10, 10, 0, 35};                    
 
 // define the Servo instances
 Servo shoulder_pan, shoulder_pitch, elbow_pitch, elbow_roll, wrist_roll, wrist_pitch, gripper_roll, gripper;
-
-void moveServos()
-{
-  // Control Servo 0 the shoulder pan
-  if (((IN[0] <= MAX_SHOULDER_PAN) || (IN[0] >= MIN_SHOULDER_PAN)) && IN[0] != 0) { //Commands cannot be more/less than Min/Max, or zero degrees
-    int angle = shoulder_pan.read();
-    if (IN[0] > angle) {
-      for (int x = angle + 1; x < IN[0] + 1; x++) {
-        shoulder_pan.write(x);
-        delay(SERVO_DELAY * 5);
-      }
-    } else if (IN[0] < angle) {
-      for (int x = angle - 1; x > IN[0] - 1; x--) {
-        shoulder_pan.write(x);
-        delay(SERVO_DELAY * 5);
-      }
-    }
-  }
-  else {
-    IN[0] = shoulder_pan.read();
-  }
-
-  // Control Servo 1 shoulder pitch
-  if (((IN[1] <= MAX_SHOULDER_PITCH) || (IN[1] >= MIN_SHOULDER_PITCH)) && IN[1] != 0) {
-    int angle = shoulder_pitch.read();
-    if (IN[1] > angle) {
-      for (int x = angle + 1; x < IN[1] + 1; x++) {
-        shoulder_pitch.write(x);
-        delay(SERVO_DELAY * 5);
-      }
-    } else if (IN[1] < angle) {
-      for (int x = angle - 1; x > IN[1] - 1; x--) {
-        shoulder_pitch.write(x);
-        delay(SERVO_DELAY * 5);
-      }
-    }
-  }
-  else {
-    IN[1] = shoulder_pitch.read();
-  }
-
-  // Control Servo 2 elbow roll
-  if (((IN[2] <= MAX_ELBOW_ROLL) || (IN[2] >= MIN_ELBOW_ROLL)) && IN[2] != 0) { // To ensure the robot doesn't go crazy if input is zero
-    int angle = elbow_roll.read();
-    if (IN[2] > angle) {
-      for (int x = angle + 1; x < IN[2] + 1; x++) {
-        elbow_roll.write(x);
-        delay(SERVO_DELAY * 4);
-      }
-    } else if (IN[2] < angle) {
-      for (int x = angle - 1; x > IN[2] - 1; x--) {
-        elbow_roll.write(x);
-        delay(SERVO_DELAY * 4);
-      }
-    }
-  }
-  else {
-    IN[2] = elbow_roll.read();
-  }
-
-  // Control Servo 3 elbow pitch
-  if (((IN[3] <= MAX_ELBOW_PITCH) || (IN[3] >= MIN_ELBOW_PITCH)) && IN[3] != 0) {
-    int angle = elbow_pitch.read();
-    if (IN[3] > angle) {
-      for (int x = angle + 1; x < IN[3] + 1; x++) {
-        elbow_pitch.write(x);
-        delay(SERVO_DELAY * 4);
-      }
-    } else if (IN[3] < angle) {
-      for (int x = angle - 1; x > IN[3] - 1; x--) {
-        elbow_pitch.write(x);
-        delay(SERVO_DELAY * 4);
-      }
-    }
-  }
-  else {
-    IN[3] = elbow_pitch.read();
-  }
-
-  // Control Servo 4 wrist roll
-  if (((IN[4] <= MAX_WRIST_ROLL) || (IN[4] >= MIN_WRIST_ROLL)) && IN[4] != 0) {
-    int angle = wrist_roll.read();
-    if (IN[4] > angle) {
-      for (int x = angle + 1; x < IN[4] + 1; x++) {
-        wrist_roll.write(x);
-        delay(SERVO_DELAY * 2);
-      }
-    } else if (IN[4] < angle) {
-      for (int x = angle - 1; x > IN[4] - 1; x--) {
-        wrist_roll.write(x);
-        delay(SERVO_DELAY * 2);
-      }
-    }
-  }
-  else {
-    IN[4] = wrist_roll.read();
-  }
-
-  // Control Servo 5 wrist pitch
-  if (((IN[5] <= MAX_WRIST_PITCH) || (IN[5] >= MIN_WRIST_PITCH)) && IN[5] != 0) {
-    int angle = wrist_pitch.read();
-    if (IN[5] > angle) {
-      for (int x = angle + 1; x < IN[5] + 1; x++) {
-        wrist_pitch.write(x);
-        delay(SERVO_DELAY * 2);
-      }
-    } else if (IN[5] < angle) {
-      for (int x = angle - 1; x > IN[5] - 1; x--) {
-        wrist_pitch.write(x);
-        delay(SERVO_DELAY * 2);
-      }
-    }
-  }
-  else {
-    IN[5] = wrist_pitch.read();
-  }
-
-  // Control Servo 6 gripper roll
-  if (((IN[6] <= MAX_GRIPPER_ROLL) || (IN[6] >= MIN_GRIPPER_ROLL)) && IN[6] != 0) {
-    int angle = gripper_roll.read();
-    if (IN[6] > angle) {
-      for (int x = angle + 1; x < IN[6] + 1; x++) {
-        gripper_roll.write(x);
-        delay(SERVO_DELAY);
-      }
-    } else if (IN[6] < angle) {
-      for (int x = angle - 1; x > IN[6] - 1; x--) {
-        gripper_roll.write(x);
-        delay(SERVO_DELAY);
-      }
-    }
-  }
-  else {
-    IN[6] = gripper_roll.read();
-  }
-
-  // Control Servo 7 gripper
-  if (((IN[7] <= MAX_GRIPPER) || (IN[7] >= MIN_GRIPPER)) && IN[7] != 0) {
-    int angle = gripper.read();
-    if (IN[7] > angle) {
-      for (int x = angle + 1; x < IN[7] + 1; x++) {
-        gripper.write(x);
-        delay(SERVO_DELAY);
-      }
-    } else if (IN[7] < angle) {
-      for (int x = angle - 1; x > IN[7] - 1; x--) {
-        gripper.write(x);
-        delay(SERVO_DELAY);
-      }
-    }
-  }
-  else {
-    IN[7] = gripper.read();
-  }
-}
-
 
 void messageCallBack (const std_msgs::String& commands)
 {
@@ -257,6 +103,16 @@ void readJointStates()
     js.data[7] = gripper.read();
 }
 
+
+void moveServos(Servo servo, int index, int angle) {
+  if (angle <= max_angles[index] && angle >= min_angles[index] && angle != 0) { //Commands cannot be more/less than Min/Max, or zero degrees
+        servo.write(angle);
+        delay(SERVO_DELAY);
+  }
+  else {
+    IN[index] = servo.read();
+  }
+}
 
 ros::Subscriber<std_msgs::String> sub("/servo_commands", &messageCallBack);
 ros::Publisher pub ("/read_joint_state", &js);
@@ -298,7 +154,31 @@ void setup() {
 void loop()
 {
   nh.spinOnce();
-  moveServos();
+  readJointStates();
+  int movement[NUMBER_OF_FIELDS];
+  for (int i = 0; i < NUMBER_OF_FIELDS; i++) {
+    movement[i] = IN[i] - js.data[i]; 
+  }
+  int loops = 10;
+  for (int i = 0; i < loops; i++) {
+    moveServos(shoulder_pan, 0, js.data[0] + (i + 1) * movement[0]/loops);
+    moveServos(shoulder_pitch, 1, js.data[1] + (i + 1) * movement[1]/loops); 
+    moveServos(elbow_roll, 2, js.data[2] + (i + 1) * movement[2]/loops);
+    moveServos(elbow_pitch, 3, js.data[3] + (i + 1) * movement[3]/loops);
+    moveServos(wrist_roll, 4, js.data[4] + (i + 1) * movement[4]/loops);
+    moveServos(wrist_pitch, 5, js.data[5] + (i + 1) * movement[5]/loops);
+    moveServos(gripper_roll, 6, js.data[6] + (i + 1) * movement[6]/loops);
+    moveServos(gripper, 7, js.data[7] + (i + 1) * movement[7]/loops);
+  }
+  moveServos(shoulder_pan, 0, IN[0]);
+  moveServos(shoulder_pitch, 1, IN[1]); 
+  moveServos(elbow_roll, 2, IN[2]);
+  moveServos(elbow_pitch, 3, IN[3]);
+  moveServos(wrist_roll, 4, IN[4]);
+  moveServos(wrist_pitch, 5, IN[5]);
+  moveServos(gripper_roll, 6, IN[6]);
+  moveServos(gripper, 7, IN[7]);
+    
   readJointStates();
   pub.publish( &js );
   delay(10);    // Update the joint states once every 10ms (100Hz);
