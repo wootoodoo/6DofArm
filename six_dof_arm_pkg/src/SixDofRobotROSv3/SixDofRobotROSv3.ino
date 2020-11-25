@@ -26,23 +26,6 @@
 
 #define SERVO_DELAY 5
 
-//#define MIN_GRIPPER 35     // Servo7; Open: 35; Close: 115; Gripper 
-//#define MAX_GRIPPER 115
-//#define MIN_GRIPPER_ROLL 0      // Servo6; MIN 0; MAX180         Gripper roll
-//#define MAX_GRIPPER_ROLL 180
-//#define MIN_WRIST_PITCH 10     // Servo5: MIN 10; MAX 160;      Wrist Pitch
-//#define MAX_WRIST_PITCH 180
-//#define MIN_WRIST_ROLL 0     // Servo4: MIN 10; MAX 180;      Wrist roll
-//#define MAX_WRIST_ROLL 180
-//#define MIN_ELBOW_PITCH 0     // Servo3: MIN 0; MAX 180;       Elbow pitch
-//#define MAX_ELBOW_PITCH 180
-//#define MIN_ELBOW_ROLL 0     // Servo2: MIN 0; MAX 180;       Elbow roll
-//#define MAX_ELBOW_ROLL 180
-//#define MIN_SHOULDER_PITCH 0      // Servo1: MIN 0; MAX 180;       Shoulder pitch
-//#define MAX_SHOULDER_PITCH 180
-//#define MIN_SHOULDER_PAN 0      // Servo0: MIN 0; MAX 160;       Shoulder pan
-//#define MAX_SHOULDER_PAN 180
-
 #define DEFAULT7 35      // gripper "100,90,45,55,130,80,180,35"
 #define DEFAULT6 180      // gripper roll
 #define DEFAULT5 80      // wrist pitch
@@ -59,7 +42,7 @@ ros::NodeHandle_<ArduinoHardware, 10, 10, 1024, 1024> nh;
 const int NUMBER_OF_FIELDS = 8;
 int fieldIndex = 0;
 int IN[NUMBER_OF_FIELDS] = {DEFAULT0, DEFAULT1, DEFAULT2, DEFAULT3, DEFAULT4, DEFAULT5, DEFAULT6, DEFAULT7};
-int max_angles[NUMBER_OF_FIELDS] = {180, 180, 180, 180, 180, 180, 180, 115}; // From shoulder pan to gripper
+int max_angles[NUMBER_OF_FIELDS] = {180, 180, 180, 180, 180, 180, 180, 115}; // Max angles from shoulder pan to gripper
 int min_angles[NUMBER_OF_FIELDS] = {0, 0, 0, 0, 10, 10, 0, 35};                    
 
 // define the Servo instances
